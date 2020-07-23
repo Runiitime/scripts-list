@@ -1,0 +1,97 @@
+body {
+  background: #eee;
+  font-family: "Nunito SemiBold";
+}
+
+.App {
+  margin: 0px;
+  padding: 0px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.scripts-table {
+  margin-top: 40px;
+  width: 920px;
+  height: 100%;
+  border-radius: 3px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.scripts-table__header {
+  width: 100%;
+  display: flex;
+  box-sizing: border-box;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.scripts-table__header .table-field {
+  color: #70727B;
+}
+
+.script-item {
+  display: flex;
+  box-sizing: border-box;
+  justify-content: space-between;
+  background: #fff;
+  margin: 15px 0;
+  cursor: pointer;
+  color: #70727B;
+  min-height: 70px;
+}
+
+.script-item.item-not-edit:hover{
+  background: #333645;
+  color: #fff
+}
+
+/*  */
+.table-field {
+  font-size: 18px;
+  padding: 15px 5px 15px 10px;
+  box-sizing: border-box;
+  width: 20%;
+
+}
+
+.table-field:nth-child(2) {
+  width: 35%;
+}
+
+.table-field__edit {
+  font-size: 18px;
+  padding: 15px 5px 15px 10px;
+  width: 20%;
+  box-sizing: border-box;
+  transition: all ease-in-out 2s;
+  min-height: 70px;
+}
+
+.table-field__edit:nth-child(2) {
+  width: 35%;
+}
+
+.table-field__edit input {
+  outline: none;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  padding: 10px 5px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.table-field__edit textarea {
+  outline: none;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  padding: 10px 5px;
+  box-sizing: border-box;
+  height: 150px;
+  width: 100%;
+  resize: none;
+}
