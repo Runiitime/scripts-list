@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { v4 as uuidv4 } from 'uuid';
 
-export type TActiveId = string | null
+export type ActiveId = string | null
 
 export interface IScriptItem {
   id: string;
@@ -13,7 +13,7 @@ export interface IScriptItem {
 
 export interface IScripts {
   scripts: IScriptItem[];
-  activeId: TActiveId;
+  activeId: ActiveId;
 }
 
 export interface IChangePayload {
@@ -58,12 +58,13 @@ const initialState: IScripts = {
   activeId: null
 }
 
-const ScriptsSlice = createSlice({
+const { actions, reducer } = createSlice({
   name: "scripts",
   initialState,
   reducers: {
+    // TODO thunk & change array to an object
     editScript: (state: IScripts, { payload }: PayloadAction<IChangePayload>): void => {
-      state.scripts = state.scripts.map((item: IScriptItem) => {
+      state.scripts = state.scripts.map((item: IScriptItem): IScriptItem => {
         if (item.id === payload.id) {
           item.name = payload.name
           item.code = payload.code
@@ -74,11 +75,10 @@ const ScriptsSlice = createSlice({
       })
     },
     addScript: (state: IScripts, { payload }: PayloadAction<IAddPayload>): void => {},
-    changeActiveScriptId: (state: IScripts, { payload }: PayloadAction<TActiveId>): void => {
+    changeActiveScriptId: (state: IScripts, { payload }: PayloadAction<ActiveId>): void => {
       state.activeId = payload
     }
   }
 })
 
-export const { editScript, addScript, changeActiveScriptId } = ScriptsSlice.actions
-export default ScriptsSlice.reducer
+export default { actions, reducer }

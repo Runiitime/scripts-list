@@ -1,26 +1,28 @@
 import React, { ChangeEvent, KeyboardEvent } from "react"
-import { IScriptItem, TActiveId, IChangePayload } from '../../store/scripts/slice'
+import { IScriptItem, ActiveId, IChangePayload } from 'store/scripts/slice'
 
-interface IState {
-  editId: TActiveId;
+interface IOwnState {
+  editId: ActiveId;
   name: string;
   code: string;
   language: string;
   date: string;
 }
 
-interface IStateProps {
+interface IOwnProps {
   script: IScriptItem;
-  activeId: TActiveId;
+  activeId: ActiveId;
 }
 
 interface IFuncProps {
-  onSetActive: (activeId: TActiveId) => void
+  onSetActive: (activeId: ActiveId) => void
   onChange: (payload: IChangePayload) => void
 }
 
-class ScriptItem extends React.Component<IStateProps & IFuncProps, IState> {
-  constructor(props: IStateProps & IFuncProps) {
+type IProps = IOwnProps & IFuncProps
+
+class ScriptItem extends React.Component<IProps, IOwnState> {
+  constructor(props: IProps) {
     super(props)
     const { script: { name, code, language, date } } = props
     this.state = {
@@ -32,12 +34,12 @@ class ScriptItem extends React.Component<IStateProps & IFuncProps, IState> {
     }
   }
 
-  private onSetChange = (): void => {
+  private onDoubleClick = (): void => {
     const { script: { id } } = this.props
-    this.handleSetActive(id)
+    this.setActive(id)
   }
 
-  private handleSetActive = (id: TActiveId): void => {
+  private setActive = (id: ActiveId): void => {
     const { onSetActive } = this.props
     this.setState({
       editId: id
@@ -65,17 +67,17 @@ class ScriptItem extends React.Component<IStateProps & IFuncProps, IState> {
     this.setState({date: value});
   }
 
-  private handleKeyDown = (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+  private onKeyDown = (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
     const { onChange, script } = this.props
     const { name, code, language, date } = this.state
 
     if (e.keyCode === 13) {
-      this.handleSetActive(null)
+      this.setActive(null)
       onChange({id: script.id, name, code, language, date})
     }
 
     if (e.keyCode === 27) {
-      this.handleSetActive(null)
+      this.setActive(null)
       this.setState({
         name: script.name,
         code: script.code,
@@ -92,20 +94,20 @@ class ScriptItem extends React.Component<IStateProps & IFuncProps, IState> {
       return (
         <>
           <div className="table-field__edit">
-            <input value={name} onChange={this.onChangeNameInput} onKeyDown={this.handleKeyDown} autoFocus/>
+            <input value={name} onChange={this.onChangeNameInput} onKeyDown={this.onKeyDown} autoFocus/>
           </div>
           <div className="table-field__edit">
             <textarea
               value={code}
               onChange={this.onChangeCodeInput}
-              onKeyDown={this.handleKeyDown}
+              onKeyDown={this.onKeyDown}
             />
           </div>
           <div className="table-field__edit">
-            <input value={language} onChange={this.onChangeLanguageInput} onKeyDown={this.handleKeyDown}/>  
+            <input value={language} onChange={this.onChangeLanguageInput} onKeyDown={this.onKeyDown}/>  
           </div>
           <div className="table-field__edit">
-            <input value={date} onChange={this.onChangeDateInput} onKeyDown={this.handleKeyDown}/>
+            <input value={date} onChange={this.onChangeDateInput} onKeyDown={this.onKeyDown}/>
           </div>
         </>
       )
@@ -120,13 +122,18 @@ class ScriptItem extends React.Component<IStateProps & IFuncProps, IState> {
       </>
     )
   }
-  
-  public render() {
+
+  private generateEditClass = (): string => {
     const { editId } = this.state
     const { activeId } = this.props
-    const scriptItemClassName = editId === activeId ? 'script-item' : 'script-item item-not-edit'
+
+    return (editId && activeId) && (editId === activeId) ? 'script-item' : 'script-item item-not-edit'
+  }
+  
+  public render() {
+    const scriptItemClassName = this.generateEditClass()
     return (
-      <div className={scriptItemClassName} onDoubleClick={ this.onSetChange }>
+      <div className={scriptItemClassName} onDoubleClick={ this.onDoubleClick }>
         { this.renderFields() }
       </div>
     )

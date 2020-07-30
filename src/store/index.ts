@@ -6,5 +6,5 @@ export interface IState {
 }
 
 export default combineReducers({
-  scripts
+  scripts: scripts.reducer
 })

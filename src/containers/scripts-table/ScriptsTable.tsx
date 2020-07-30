@@ -1,22 +1,23 @@
 import React from "react"
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-import { IState } from '../../store'
-import { IScriptItem, IAddPayload, IChangePayload, addScript, editScript, TActiveId, changeActiveScriptId } from '../../store/scripts/slice'
-import ScriptItem from "../../components/script-list/ScriptItem"
+import { IState } from 'store/index'
+import scriptsSlice, { ActiveId, IAddPayload, IChangePayload, IScriptItem } from 'store/scripts/slice'
+import ScriptItem from "components/script-list/ScriptItem"
 
 interface IStateProps {
   scripts: IScriptItem[];
-  activeId: TActiveId;
+  activeId: ActiveId;
 }
 
-interface IFunProps {
-  addScript: (payload: IAddPayload) => {};
-  editScript: (payload: IChangePayload) => {};
-  changeActiveScriptId: (payload: TActiveId) => {}
+interface IDispatchProps {
+  onAddScript: (payload: IAddPayload) => void;
+  onEditScript: (payload: IChangePayload) => void;
+  onChangeActiveScriptId: (payload: ActiveId) => void;
 }
 
-class ScriptsTable extends React.Component<IStateProps & IFunProps> {
+type IProps = IStateProps & IDispatchProps
+
+class ScriptsTable extends React.Component<IProps> {
 
   private renderHeader = (): JSX.Element => {
     return (
@@ -31,24 +32,22 @@ class ScriptsTable extends React.Component<IStateProps & IFunProps> {
 
   private renderItems = (): JSX.Element[] => {
     const { scripts, activeId } = this.props
-    return scripts.map((item: IScriptItem) => (
-      <ScriptItem script={item} key={item.id} activeId={activeId} onSetActive={this.handleSetActiveId} onChange={this.handleChangeItem}/>
+    return scripts.map((item: IScriptItem): JSX.Element => (
+      <ScriptItem script={item} key={item.id} activeId={activeId} onSetActive={this.onSeActiveId} onChange={this.onChangeItem}/>
     ))
   }
 
-  private handleSetActiveId = (activeId: TActiveId): void => {
-    const { changeActiveScriptId } = this.props
-    changeActiveScriptId(activeId)
+  private onSeActiveId = (activeId: ActiveId): void => {
+    const { onChangeActiveScriptId } = this.props
+    onChangeActiveScriptId(activeId)
   }
 
-  private handleChangeItem = (item: IChangePayload): void => {
-    const { editScript } = this.props
-    editScript(item)
+  private onChangeItem = (item: IChangePayload): void => {
+    const { onEditScript } = this.props
+    onEditScript(item)
   }
   
-
   public render() {
-    const { scripts, activeId } = this.props
     return (
       <div className="scripts-table">
         { this.renderHeader() }
@@ -58,17 +57,15 @@ class ScriptsTable extends React.Component<IStateProps & IFunProps> {
   }
 }
 
-const mapStateToProps = (state: IState): IStateProps => {
-  return {
-    scripts: state.scripts.scripts,
-    activeId: state.scripts.activeId
-  }
-}
+const mapStateToProps = (state: IState): IStateProps => ({
+  scripts: state.scripts.scripts,
+  activeId: state.scripts.activeId
+})
 
-const mapDispatchToProps = (dispatch: any): IFunProps => bindActionCreators({
-  addScript,
-  editScript,
-  changeActiveScriptId,
-}, dispatch)
+export const mapDispatchToProps: IDispatchProps = {
+  onAddScript: scriptsSlice.actions.addScript,
+  onEditScript: scriptsSlice.actions.editScript,
+  onChangeActiveScriptId: scriptsSlice.actions.changeActiveScriptId,
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(ScriptsTable)
