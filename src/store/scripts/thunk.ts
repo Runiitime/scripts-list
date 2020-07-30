@@ -15,6 +15,5 @@ export const editScript = (script: IScriptItem): Function => (dispatch: Function
     }
     mapped.set(id, val)
   })
-
   dispatch(scriptsSlice.actions.editScript(mapped))
 }
