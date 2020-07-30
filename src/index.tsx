@@ -5,9 +5,11 @@ import App from './App';
 import { configureStore } from "@reduxjs/toolkit"
 import { Provider } from "react-redux"
 import rootReducer from './store'
+import thunk from 'redux-thunk';
 
 export const store = configureStore({
-  reducer: rootReducer
+  reducer: rootReducer,
+  middleware: [thunk]
 })
 
 ReactDOM.render(

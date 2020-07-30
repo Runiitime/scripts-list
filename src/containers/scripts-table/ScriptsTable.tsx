@@ -3,9 +3,10 @@ import { connect } from 'react-redux'
 import { IState } from 'store/index'
 import scriptsSlice, { ActiveId, IAddPayload, IChangePayload, IScriptItem } from 'store/scripts/slice'
 import ScriptItem from "components/script-list/ScriptItem"
+import { setActiveId, editScript } from 'store/scripts/thunk'
 
 interface IStateProps {
-  scripts: IScriptItem[];
+  scripts: Map<string, IScriptItem>;
   activeId: ActiveId;
 }
 
@@ -30,11 +31,14 @@ class ScriptsTable extends React.Component<IProps> {
     )
   }
 
-  private renderItems = (): JSX.Element[] => {
+  private renderItems = () => {
     const { scripts, activeId } = this.props
-    return scripts.map((item: IScriptItem): JSX.Element => (
-      <ScriptItem script={item} key={item.id} activeId={activeId} onSetActive={this.onSeActiveId} onChange={this.onChangeItem}/>
-    ))
+    let items: JSX.Element[] = []
+    scripts.forEach((item: IScriptItem): void => {
+      items.push(<ScriptItem script={item} key={item.id} activeId={activeId} onSetActive={this.onSeActiveId} onChange={this.onChangeItem}/>)
+    })
+
+    return items
   }
 
   private onSeActiveId = (activeId: ActiveId): void => {
@@ -64,8 +68,8 @@ const mapStateToProps = (state: IState): IStateProps => ({
 
 export const mapDispatchToProps: IDispatchProps = {
   onAddScript: scriptsSlice.actions.addScript,
-  onEditScript: scriptsSlice.actions.editScript,
-  onChangeActiveScriptId: scriptsSlice.actions.changeActiveScriptId,
+  onEditScript: editScript,
+  onChangeActiveScriptId: setActiveId,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ScriptsTable)
