@@ -1,13 +1,5 @@
-import React, { ChangeEvent, KeyboardEvent } from "react"
+import React, { KeyboardEvent, useState, useEffect } from "react"
 import { IScriptItem, ActiveId, IChangePayload } from 'store/scripts/slice'
-
-interface IOwnState {
-  editId: ActiveId;
-  name: string;
-  code: string;
-  language: string;
-  date: string;
-}
 
 interface IOwnProps {
   script: IScriptItem;
@@ -21,98 +13,94 @@ interface IFuncProps {
 
 type IProps = IOwnProps & IFuncProps
 
-class ScriptItem extends React.Component<IProps, IOwnState> {
-  constructor(props: IProps) {
-    super(props)
-    const { script: { name, code, language, date } } = props
-    this.state = {
-      editId: "",
-      name: name,
-      code: code,
-      date: date,
-      language: language
-    }
+const ScriptItem: React.FC<IProps> = (props: IProps) => {
+  const [editId, setEditId] = useState<ActiveId>(null)
+  const [name, setName] = useState('')
+  const [code, setCode] = useState('')
+  const [language, setLanguage] = useState('')
+  const [date, setDate] = useState('')
+
+  useEffect((): void => {
+    setDefaultData()
+  }, [])
+
+  const onDoubleClick = (): void => {
+    const { script: { id } } = props
+    setActive(id)
   }
 
-  private onDoubleClick = (): void => {
-    const { script: { id } } = this.props
-    this.setActive(id)
-  }
-
-  private setActive = (id: ActiveId): void => {
-    const { onSetActive } = this.props
-    this.setState({
-      editId: id
-    })
+  const setActive = (id: ActiveId): void => {
+    const { onSetActive } = props
+    setEditId(id)
     onSetActive(id)
   }
 
-  private onChangeNameInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const { value } = e.target
-    this.setState({name: value});
+  const setDefaultData = (): void => {
+    const { script } = props
+    setName(script.name)
+    setCode(script.code)
+    setLanguage(script.language)
+    setDate(script.date)
   }
 
-  private onChangeCodeInput = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
+  const onChangeNameInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { value } = e.target
-    this.setState({code: value});
+    setName(value);
   }
 
-  private onChangeLanguageInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  const onChangeCodeInput = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
     const { value } = e.target
-    this.setState({language: value});
+    setCode(value);
   }
 
-  private onChangeDateInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  const onChangeLanguageInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { value } = e.target
-    this.setState({date: value});
+    setLanguage(value);
   }
 
-  private onKeyDown = (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-    const { onChange, script } = this.props
-    const { name, code, language, date } = this.state
+  const onChangeDateInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const { value } = e.target
+    setDate(value);
+  }
+
+  const onKeyDown = (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+    const { onChange, script } = props
 
     if (e.keyCode === 13) {
-      this.setActive(null)
+      setActive(null)
       onChange({id: script.id, name, code, language, date})
     }
 
     if (e.keyCode === 27) {
-      this.setActive(null)
-      this.setState({
-        name: script.name,
-        code: script.code,
-        language: script.language,
-        date: script.date,
-      })
+      setActive(null)
+      setDefaultData()
     }
   }
 
-  private renderFields = (): JSX.Element => {
-    const { script, activeId } = this.props
-    const { editId, name, code, language, date } = this.state
+  const renderFields = (): JSX.Element => {
+    const { script, activeId } = props
     if (activeId && editId && activeId === editId) {
       return (
         <>
           <div className="table-field__edit">
-            <input value={name} onChange={this.onChangeNameInput} onKeyDown={this.onKeyDown} autoFocus/>
+            <input value={name} onChange={onChangeNameInput} onKeyDown={onKeyDown} autoFocus/>
           </div>
           <div className="table-field__edit">
             <textarea
               value={code}
-              onChange={this.onChangeCodeInput}
-              onKeyDown={this.onKeyDown}
+              onChange={onChangeCodeInput}
+              onKeyDown={onKeyDown}
             />
           </div>
           <div className="table-field__edit">
-            <input value={language} onChange={this.onChangeLanguageInput} onKeyDown={this.onKeyDown}/>  
+            <input value={language} onChange={onChangeLanguageInput} onKeyDown={onKeyDown}/>  
           </div>
           <div className="table-field__edit">
-            <input value={date} onChange={this.onChangeDateInput} onKeyDown={this.onKeyDown}/>
+            <input value={date} onChange={onChangeDateInput} onKeyDown={onKeyDown}/>
           </div>
         </>
       )
     }
-
     return (
       <>
         <div className="table-field">{ script.name }</div>
@@ -123,21 +111,17 @@ class ScriptItem extends React.Component<IProps, IOwnState> {
     )
   }
 
-  private generateEditClass = (): string => {
-    const { editId } = this.state
-    const { activeId } = this.props
-
+  const generateEditClass = (): string => {
+    const { activeId } = props
     return (editId && activeId) && (editId === activeId) ? 'script-item' : 'script-item item-not-edit'
   }
-  
-  public render() {
-    const scriptItemClassName = this.generateEditClass()
-    return (
-      <div className={scriptItemClassName} onDoubleClick={ this.onDoubleClick }>
-        { this.renderFields() }
-      </div>
-    )
-  }
+
+  const scriptItemClassName = generateEditClass()
+  return (
+    <div className={scriptItemClassName} onDoubleClick={ onDoubleClick }>
+      { renderFields() }
+    </div>
+  )
 }
 
 export default ScriptItem
