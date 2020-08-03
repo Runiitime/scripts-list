@@ -4,7 +4,10 @@ import { IState } from 'store/index'
 import { ActiveId, IChangePayload, IScriptItem } from 'store/scripts/slice'
 import ScriptItem from "components/script-list/ScriptItem"
 import { setActiveId, editScript } from 'store/scripts/thunk'
-import { getActiveId, getScripts} from 'store/scripts/selectors'
+// 1 вариант
+// import { getActiveId, getScripts} from 'store/scripts/selectors'
+// 2 вариант
+import { scriptSelectors} from 'store/scripts/selectors'
 
 interface IStateProps {
   scripts: Map<string, IScriptItem>;
@@ -13,8 +16,13 @@ interface IStateProps {
 
 const ScriptsTable: React.FC = () => {
   const { scripts, activeId } = useSelector<IState, IStateProps>((state: IState): IStateProps => ({
-    scripts: getScripts(state),
-    activeId: getActiveId(state)
+    // 1 вариант
+    // scripts: getScripts(state),
+    // activeId: getActiveId(state)
+
+    // 2 вариант
+    scripts: scriptSelectors(state).scripts(),
+    activeId: scriptSelectors(state).activeId()
   }))
 
   const dispatch = useDispatch()
