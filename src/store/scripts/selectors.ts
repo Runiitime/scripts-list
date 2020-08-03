@@ -3,6 +3,10 @@ import { IScriptItem, ActiveId } from './slice'
 import { IState } from "store"
 
 type List = Map<string, IScriptItem>
+interface IScriptsSelector {
+  scripts(): List;
+  activeId(): ActiveId;
+}
 
 const getScriptsList = (state: IState): List => state.scripts.scripts
 const getActiveItemId = (state: IState): ActiveId => state.scripts.activeId
@@ -12,7 +16,7 @@ export const getScripts: OutputSelector<IState, List, (res: List) => List> = cre
 export const getActiveId: OutputSelector<IState, ActiveId, (res: ActiveId) => ActiveId> = createSelector(getActiveItemId, (activeId: ActiveId) => activeId)
 
 // 2 вариант
-export const scriptSelectors = (state: IState) => ({
+export const scriptSelectors = (state: IState): IScriptsSelector => ({
   scripts: (): List => getScripts(state),
   activeId: (): ActiveId => getActiveId(state)
 })
