@@ -1,7 +1,7 @@
 import React from "react"
 import { useDispatch, useSelector } from 'react-redux'
 import { IState } from 'store/index'
-import { ActiveId, IChangePayload, IScriptItem } from 'store/scripts/slice'
+import { IChangePayload, IScriptItem } from 'store/scripts/slice'
 import ScriptItem from "components/script-list/ScriptItem"
 import { setActiveId, editScript } from 'store/scripts/thunk'
 // 1 вариант
@@ -11,7 +11,7 @@ import { scriptSelectors} from 'store/scripts/selectors'
 
 interface IStateProps {
   scripts: Map<string, IScriptItem>;
-  activeId: ActiveId;
+  activeId: string;
 }
 
 const ScriptsTable: React.FC = () => {
@@ -28,26 +28,27 @@ const ScriptsTable: React.FC = () => {
   const dispatch = useDispatch()
   
   const renderHeader = (): JSX.Element => {
+    const tableFieldClassName = "table-field"
     return (
       <div className="scripts-table__header">
-        <div className="table-field">Название</div>
-        <div className="table-field">Код</div>
-        <div className="table-field">Язык программирования</div>
-        <div className="table-field">Дата изменения</div>
+        <div className={tableFieldClassName}>Название</div>
+        <div className={tableFieldClassName}>Код</div>
+        <div className={tableFieldClassName}>Язык программирования</div>
+        <div className={tableFieldClassName}>Дата изменения</div>
       </div>
     )
   }
 
-  const renderItems = () => {
-    let items: JSX.Element[] = []
-    scripts.forEach((item: IScriptItem): void => {
-      items.push(<ScriptItem script={item} key={item.id} activeId={activeId} onSetActive={onSeActiveId} onChange={onChangeItem}/>)
+  const renderItems = (): JSX.Element[] => {
+    return Array.from(scripts).map((item: [string, IScriptItem]): JSX.Element => {
+      const current = item[1]
+      return (
+        <ScriptItem script={current} key={current.id} activeId={activeId} onSetActive={onSeActiveId} onChange={onChangeItem}/>
+      )
     })
-
-    return items
   }
 
-  const onSeActiveId = (activeId: ActiveId): void => {
+  const onSeActiveId = (activeId: string): void => {
     dispatch(setActiveId(activeId))
   }
 

@@ -1,7 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 
-export type ActiveId = string | null
-
 export interface IScriptItem {
   id: string;
   name: string;
@@ -12,7 +10,7 @@ export interface IScriptItem {
 
 export interface IScripts {
   scripts: Map<string, IScriptItem>;
-  activeId: ActiveId;
+  activeId: string;
 }
 
 export interface IChangePayload {
@@ -74,7 +72,7 @@ const { actions, reducer } = createSlice({
       state.scripts = payload
     },
     addScript: (state: IScripts, { payload }: PayloadAction<IAddPayload>): void => {},
-    changeActiveScriptId: (state: IScripts, { payload }: PayloadAction<ActiveId>): void => {
+    changeActiveScriptId: (state: IScripts, { payload }: PayloadAction<string>): void => {
       state.activeId = payload
       
     }
