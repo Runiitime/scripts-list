@@ -9,6 +9,7 @@ import { setActiveId, editScript } from 'store/scripts/thunk'
 // 2 вариант
 import { scriptSelectors} from 'store/scripts/selectors'
 
+
 interface IStateProps {
   scripts: Map<string, IScriptItem>;
   activeId: string;

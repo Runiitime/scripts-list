@@ -1,6 +1,14 @@
 import React, { KeyboardEvent, useState, useEffect } from "react"
 import { IScriptItem, IChangePayload } from 'store/scripts/slice'
 import classNames from "classnames"
+import Modal from 'components/modal/Modal'
+import edit from 'assets/icons/edit.svg'
+
+import AceEditor from "react-ace";
+import "ace-builds/src-noconflict/mode-javascript";
+import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/mode-python";
+import "ace-builds/src-noconflict/theme-monokai";
 
 interface IOwnProps {
   script: IScriptItem;
@@ -24,6 +32,7 @@ const ScriptItem: React.FC<IProps> = (props: IProps) => {
   const [language, setLanguage] = useState<string>('')
   const [date, setDate] = useState<string>('')
   const [editField, setEditField] = useState<string>('')
+  const [isOpen, setIsOpen] = useState<boolean>(false)
 
   useEffect((): void => {
     setDefaultData()
@@ -83,13 +92,36 @@ const ScriptItem: React.FC<IProps> = (props: IProps) => {
     }
   }
 
+  const onEditClick = (): void => {
+    const { script: { id }, onSetActive } = props
+    onSetActive(id)
+    setEditId(id)
+    setIsOpen(true)
+    setDefaultData()
+  }
+
   const getRenderField = (inputField: JSX.Element, value: string, fieldName: string): JSX.Element => {
     const { activeId } = props
     const isEditMode = activeId && editId && activeId === editId
     return (
       <>
         {
-          editField === fieldName && isEditMode ? inputField : value
+          editField === fieldName && isEditMode ? inputField : (
+            <>
+              <span className="edit" onClick={onEditClick}>
+                <svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1">
+                  <g id="Index" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                      <g id="Group-7" transform="translate(-326.000000, -244.000000)" fill="#3AB487" fill-rule="nonzero">
+                          <g id="np_edit_1751206_000000" transform="translate(326.000000, 244.000000)">
+                              <path d="M5.35500335,14.8776665 L5.8193621,14.4133077 L1.58681797,10.1807636 L11.1104912,0.657090356 C11.9866117,-0.219030119 13.4084915,-0.219030119 14.28463,0.657090356 L15.3431251,1.71558554 C16.2192456,2.59170601 16.2192456,4.01358585 15.3431251,4.88972428 L5.35500335,14.8776665 Z M4.75596457,15.4661823 C4.35192451,15.8099036 3.83705176,16 3.3025337,16 L0.373871739,16 C0.166949354,16 0,15.8330524 0,15.6261283 L0,12.6974663 C0,12.1629482 0.190096361,11.6480755 0.533817732,11.2440354 L4.75596457,15.4661823 Z" id="Shape"></path>
+                          </g>
+                      </g>
+                  </g>
+                </svg>
+              </span>
+              {value}
+            </>
+          )
         }
       </>
     )
@@ -97,7 +129,7 @@ const ScriptItem: React.FC<IProps> = (props: IProps) => {
 
   const renderFields = (): JSX.Element => {
     const { script, activeId } = props
-    const isEditMode = activeId && editId && activeId === editId
+    const isEditMode = activeId && editId && activeId === editId && !isOpen
     const editClassName = isEditMode ? 'table-field__edit' : 'table-field'
     const codeValue = script.code.length > 100 ? `${script.code.slice(0, 100)}...` : script.code
     return (
@@ -126,11 +158,50 @@ const ScriptItem: React.FC<IProps> = (props: IProps) => {
     })
   }
 
+  const onCloseModal = (value: boolean): void => {
+    setIsOpen(value)
+    setDefaultData()
+  }
+
+  const onSaveModal = (): void => {
+    const { script, onChange } = props
+    onChange({id: script.id, name, code, language, date})
+    setActive(null)
+    setIsOpen(false)
+  }
+
+  const aceChange = (value: string): void => {
+    setCode(value);
+  }
+
+  const renderModalFields = (): JSX.Element => {
+    return <AceEditor
+      mode={language.toLowerCase()}
+      theme="monokai"
+      onChange={aceChange}
+      value={code}
+      name={name}
+      className="ace-editor"
+      editorProps={{ $blockScrolling: true }}
+    />
+  }
+  
+  const renderModal = (): JSX.Element => {
+    return (
+      <Modal isOpen={isOpen} onSave={onSaveModal} onClose={onCloseModal}>
+        <div>{ renderModalFields() }</div>
+      </Modal>
+    )
+  }
+
   const scriptItemClassName = generateEditClass()
   return (
-    <div className={scriptItemClassName} onDoubleClick={ onDoubleClick }>
-      { renderFields() }
-    </div>
+    <>
+      <div className={scriptItemClassName} onDoubleClick={ onDoubleClick }>
+        { renderFields() }
+      </div>
+      { renderModal() }
+    </>
   )
 }
 
