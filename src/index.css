@@ -49,7 +49,7 @@ body {
 }
 
 .script-item.item-not-edit:hover{
-  background: #333645;
+  background: #7B7E8D;
   color: #fff
 }
 
@@ -59,7 +59,7 @@ body {
   padding: 15px 5px 15px 10px;
   box-sizing: border-box;
   width: 20%;
-
+  display: flex;
 }
 
 .table-field:nth-child(2) {
@@ -79,14 +79,7 @@ body {
   width: 35%;
 }
 
-.table-field__edit input {
-  outline: none;
-  border-radius: 3px;
-  border: 1px solid #ccc;
-  padding: 10px 5px;
-  box-sizing: border-box;
-  width: 100%;
-}
+
 
 .table-field__edit textarea {
   outline: none;
@@ -122,11 +115,10 @@ body {
 .modal {
   background: #fff;
   min-width: 460px;
-  height: 120px;
 }
 
 .modal-content {
-  
+  padding: 15px;
 }
 
 .modal-footer {
@@ -166,6 +158,18 @@ body {
   max-height: 150px;
 }
 
-span.edit {
-  color: #2C8866;
+img.edit {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+
+
+.table-field__edit input, .modal-content input {
+  outline: none;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  padding: 10px 5px;
+  box-sizing: border-box;
+  width: 100%;
 }

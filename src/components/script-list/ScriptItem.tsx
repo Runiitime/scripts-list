@@ -2,7 +2,6 @@ import React, { KeyboardEvent, useState, useEffect } from "react"
 import { IScriptItem, IChangePayload } from 'store/scripts/slice'
 import classNames from "classnames"
 import Modal from 'components/modal/Modal'
-import edit from 'assets/icons/edit.svg'
 
 import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-javascript";
@@ -38,6 +37,7 @@ const ScriptItem: React.FC<IProps> = (props: IProps) => {
     setDefaultData()
   }, [])
 
+    // Я пробовала указать тип React.MouseEvent<HTMLDivElement> вместо any но тогда я никак не могу получить свойство id 
   const onDoubleClick = (e: any): void => {
     const { script: { id } } = props
     setActive(id, e.target.id)
@@ -92,33 +92,27 @@ const ScriptItem: React.FC<IProps> = (props: IProps) => {
     }
   }
 
-  const onEditClick = (): void => {
-    const { script: { id }, onSetActive } = props
-    onSetActive(id)
-    setEditId(id)
-    setIsOpen(true)
-    setDefaultData()
+  // Я пробовала указать тип React.MouseEvent<HTMLImageElement> вместо any но тогда я никак не могу получить свойство id
+  const onEditClick = (e: any): void => {
+    const { script: { id } } = props
+    const elemID: string = e.target.id
+    const ids = elemID.split('_')
+    if (ids.length > 0) {
+      setDefaultData()
+      setActive(id, ids[0])
+      setIsOpen(true)
+    }
   }
 
-  const getRenderField = (inputField: JSX.Element, value: string, fieldName: string): JSX.Element => {
+  const getRenderField = (inputField: JSX.Element, value: string, fieldName: string, id: string): JSX.Element => {
     const { activeId } = props
-    const isEditMode = activeId && editId && activeId === editId
+    const isEditMode = activeId && editId && activeId === editId && !isOpen
     return (
       <>
         {
           editField === fieldName && isEditMode ? inputField : (
             <>
-              <span className="edit" onClick={onEditClick}>
-                <svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1">
-                  <g id="Index" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                      <g id="Group-7" transform="translate(-326.000000, -244.000000)" fill="#3AB487" fill-rule="nonzero">
-                          <g id="np_edit_1751206_000000" transform="translate(326.000000, 244.000000)">
-                              <path d="M5.35500335,14.8776665 L5.8193621,14.4133077 L1.58681797,10.1807636 L11.1104912,0.657090356 C11.9866117,-0.219030119 13.4084915,-0.219030119 14.28463,0.657090356 L15.3431251,1.71558554 C16.2192456,2.59170601 16.2192456,4.01358585 15.3431251,4.88972428 L5.35500335,14.8776665 Z M4.75596457,15.4661823 C4.35192451,15.8099036 3.83705176,16 3.3025337,16 L0.373871739,16 C0.166949354,16 0,15.8330524 0,15.6261283 L0,12.6974663 C0,12.1629482 0.190096361,11.6480755 0.533817732,11.2440354 L4.75596457,15.4661823 Z" id="Shape"></path>
-                          </g>
-                      </g>
-                  </g>
-                </svg>
-              </span>
+              <img src="https://img.icons8.com/android/24/000000/edit.png" onClick={onEditClick} id={`${fieldName}__${id}`} className="edit" alt="edit"/>
               {value}
             </>
           )
@@ -135,16 +129,16 @@ const ScriptItem: React.FC<IProps> = (props: IProps) => {
     return (
       <>
         <div className={editClassName} id="name">
-          { getRenderField(<input value={name} onChange={onChangeNameInput} onKeyDown={onKeyDown} autoFocus/>, script.name, 'name') }
+          { getRenderField(<input value={name} onChange={onChangeNameInput} onKeyDown={onKeyDown} autoFocus/>, script.name, 'name', script.id) }
         </div>
         <div className={editClassName} id="code">
-          { getRenderField(<textarea value={code} onChange={onChangeCodeInput} onKeyDown={onKeyDown}/>, codeValue, 'code') }
+          { getRenderField(<textarea value={code} onChange={onChangeCodeInput} onKeyDown={onKeyDown} autoFocus/>, codeValue, 'code', script.id) }
         </div>
         <div className={editClassName} id="language">
-          { getRenderField(<input value={language} onChange={onChangeLanguageInput} onKeyDown={onKeyDown} />, script.language, 'language') }
+          { getRenderField(<input value={language} onChange={onChangeLanguageInput} onKeyDown={onKeyDown} autoFocus/>, script.language, 'language', script.id) }
         </div>
         <div className={editClassName} id="date">
-          { getRenderField(<input value={date} onChange={onChangeDateInput} onKeyDown={onKeyDown} />, script.date, 'date')}
+          { getRenderField(<input value={date} onChange={onChangeDateInput} onKeyDown={onKeyDown} autoFocus/>, script.date, 'date', script.id)}
         </div>
       </>
     )
@@ -159,8 +153,11 @@ const ScriptItem: React.FC<IProps> = (props: IProps) => {
   }
 
   const onCloseModal = (value: boolean): void => {
+    const { script: { id } } = props
+
     setIsOpen(value)
     setDefaultData()
+    setActive(null)
   }
 
   const onSaveModal = (): void => {
@@ -170,15 +167,28 @@ const ScriptItem: React.FC<IProps> = (props: IProps) => {
     setIsOpen(false)
   }
 
-  const aceChange = (value: string): void => {
+  const onAceChange = (value: string): void => {
     setCode(value);
   }
 
   const renderModalFields = (): JSX.Element => {
+    const inputClassName = 'modal-input'
+    if (editField === 'name') {
+      return <input value={name} onChange={onChangeNameInput} className={inputClassName}/>
+    }
+
+    if (editField === 'language') {
+      return <input value={language} onChange={onChangeLanguageInput} className={inputClassName}/>
+    }
+
+    if (editField === 'date') {
+      return <input value={date} onChange={onChangeDateInput} className={inputClassName}/>
+    }
+
     return <AceEditor
       mode={language.toLowerCase()}
       theme="monokai"
-      onChange={aceChange}
+      onChange={onAceChange}
       value={code}
       name={name}
       className="ace-editor"
@@ -189,7 +199,7 @@ const ScriptItem: React.FC<IProps> = (props: IProps) => {
   const renderModal = (): JSX.Element => {
     return (
       <Modal isOpen={isOpen} onSave={onSaveModal} onClose={onCloseModal}>
-        <div>{ renderModalFields() }</div>
+        { renderModalFields() }
       </Modal>
     )
   }
