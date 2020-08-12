@@ -11,7 +11,7 @@ import { scriptSelectors} from 'store/scripts/selectors'
 
 
 interface IStateProps {
-  scripts: Map<string, IScriptItem>;
+  scripts: IScriptItem[];
   activeId: string;
 }
 
@@ -41,12 +41,9 @@ const ScriptsTable: React.FC = () => {
   }
 
   const renderItems = (): JSX.Element[] => {
-    return Array.from(scripts).map((item: [string, IScriptItem]): JSX.Element => {
-      const current = item[1]
-      return (
-        <ScriptItem script={current} key={current.id} activeId={activeId} onSetActive={onSeActiveId} onChange={onChangeItem}/>
-      )
-    })
+    return scripts.map((item: IScriptItem): JSX.Element =>  (
+      <ScriptItem script={item} key={item.id} activeId={activeId} onSetActive={onSeActiveId} onChange={onChangeItem}/>
+    ))
   }
 
   const onSeActiveId = (activeId: string): void => {
