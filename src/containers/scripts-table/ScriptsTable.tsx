@@ -13,21 +13,24 @@ import { scriptSelectors} from 'store/scripts/selectors'
 interface IStateProps {
   scripts: IScriptItem[];
   activeId: string;
+  item: IScriptItem;
 }
 
 const ScriptsTable: React.FC = () => {
-  const { scripts, activeId } = useSelector<IState, IStateProps>((state: IState): IStateProps => ({
+  const { scripts, activeId, item } = useSelector<IState, IStateProps>((state: IState): IStateProps => ({
     // 1 вариант
     // scripts: getScripts(state),
     // activeId: getActiveId(state)
 
     // 2 вариант
     scripts: scriptSelectors(state).scripts(),
-    activeId: scriptSelectors(state).activeId()
+    activeId: scriptSelectors(state).activeId(),
+
+    // Демонстрация использования createSelector с переданным параметром
+    item: scriptSelectors(state, "5bba2500-fdbf-4375-a9c3-f7f7864b7df0A").item,
   }))
 
   const dispatch = useDispatch()
-  
   const renderHeader = (): JSX.Element => {
     const tableFieldClassName = "table-field"
     return (

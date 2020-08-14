@@ -1,6 +1,7 @@
-import scriptsSlice, { IScriptItem, IDictionary } from './slice'
-import { IState } from 'store/index'
-import { scriptSelectors } from './selectors'
+import scriptsSlice, { IScriptItem, IDictionary } from './slice';
+import { IState } from 'store/index';
+import { getScriptsList } from './selectors';
+import { produce } from 'immer';
 
 type GetStateFunc = () => IState;
 
@@ -10,14 +11,9 @@ export const setActiveId = (id: string): Function => (dispatch: Function): void 
 
 export const editScript = (script: IScriptItem): Function => (dispatch: Function, getState: GetStateFunc): void => {
   const state: IState = getState();
-  // const scripts: IScriptItem[] = scriptSelectors(state).scripts();
-
-  // const scriptsArray: [string, IScriptItem][] = Array.from(scripts)
-  // let mapped = new Map<string, IScriptItem>()
-
-  // scriptsArray.forEach(([id, value]): void => {
-  //   const val: IScriptItem = id === script.id ? script : value
-  //   mapped.set(id, val)
-  // })
-  // dispatch(scriptsSlice.actions.editScript(mapped))
+  const scripts: IDictionary = getScriptsList(state);
+  const edited: IDictionary = produce(scripts, (draft: IDictionary): void => {
+    draft[script.id] = script
+  });
+  dispatch(scriptsSlice.actions.editScript(edited));
 }
