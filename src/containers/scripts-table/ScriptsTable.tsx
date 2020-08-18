@@ -1,36 +1,29 @@
-import React from "react"
-import { useDispatch, useSelector } from 'react-redux'
-import { IState } from 'store/index'
-import { IChangePayload, IScriptItem } from 'store/scripts/slice'
-import ScriptItem from "components/script-list/ScriptItem"
-import { setActiveId, editScript } from 'store/scripts/thunk'
-// 1 вариант
-// import { getActiveId, getScripts} from 'store/scripts/selectors'
-// 2 вариант
-import { scriptSelectors} from 'store/scripts/selectors'
+import React from "react";
+import { useDispatch, useSelector } from 'react-redux';
+import { IState } from 'store/index';
+import scriptsSlice from 'store/scripts/slice';
+import { IScriptItem } from 'store/scripts/types';
+import ScriptItem from "components/script-list/ScriptItem";
+import { setScriptsData } from 'store/scripts/thunk';
+import { scriptSelectors} from 'store/scripts/selectors';
 
 
 interface IStateProps {
   scripts: IScriptItem[];
-  activeId: string;
+  selectedId: string;
   item: IScriptItem;
 }
 
 const ScriptsTable: React.FC = () => {
-  const { scripts, activeId, item } = useSelector<IState, IStateProps>((state: IState): IStateProps => ({
-    // 1 вариант
-    // scripts: getScripts(state),
-    // activeId: getActiveId(state)
-
-    // 2 вариант
+  const { scripts, selectedId, item } = useSelector<IState, IStateProps>((state: IState): IStateProps => ({
     scripts: scriptSelectors(state).scripts(),
-    activeId: scriptSelectors(state).activeId(),
+    selectedId: scriptSelectors(state).selectedId(),
 
     // Демонстрация использования createSelector с переданным параметром
-    item: scriptSelectors(state, "5bba2500-fdbf-4375-a9c3-f7f7864b7df0A").item,
-  }))
+    item: scriptSelectors(state).item(),
+  }));
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const renderHeader = (): JSX.Element => {
     const tableFieldClassName = "table-field"
     return (
@@ -45,16 +38,16 @@ const ScriptsTable: React.FC = () => {
 
   const renderItems = (): JSX.Element[] => {
     return scripts.map((item: IScriptItem): JSX.Element =>  (
-      <ScriptItem script={item} key={item.id} activeId={activeId} onSetActive={onSeActiveId} onChange={onChangeItem}/>
+      <ScriptItem script={item} key={item.id} selectedId={selectedId} onSetSelectedId={onSetSelectedId} onChange={onChangeItem}/>
     ))
   }
 
-  const onSeActiveId = (activeId: string): void => {
-    dispatch(setActiveId(activeId))
+  const onSetSelectedId = (selectedId: string): void => {
+    dispatch(scriptsSlice.actions.setSelectedId(selectedId))
   }
 
-  const onChangeItem = (item: IChangePayload): void => {
-    dispatch(editScript(item))
+  const onChangeItem = (item: IScriptItem): void => {
+    dispatch(setScriptsData(item))
   }
 
   return (
@@ -65,4 +58,4 @@ const ScriptsTable: React.FC = () => {
   )
 }
 
-export default ScriptsTable
+export default ScriptsTable;

@@ -1,19 +1,16 @@
-import scriptsSlice, { IScriptItem, IDictionary } from './slice';
+import scriptsSlice from './slice';
+import { IScriptItem, IDictionary } from './types';
 import { IState } from 'store/index';
-import { getScriptsList } from './selectors';
+import { scriptSelectors } from './selectors';
 import { produce } from 'immer';
 
 type GetStateFunc = () => IState;
 
-export const setActiveId = (id: string): Function => (dispatch: Function): void => {
-  dispatch(scriptsSlice.actions.changeActiveScriptId(id));
-}
-
-export const editScript = (script: IScriptItem): Function => (dispatch: Function, getState: GetStateFunc): void => {
+export const setScriptsData = (script: IScriptItem): Function => (dispatch: Function, getState: GetStateFunc): void => {
   const state: IState = getState();
-  const scripts: IDictionary = getScriptsList(state);
+  const scripts: IDictionary = scriptSelectors(state).scriptList();
   const edited: IDictionary = produce(scripts, (draft: IDictionary): void => {
-    draft[script.id] = script
+    draft[script.id] = script;
   });
-  dispatch(scriptsSlice.actions.editScript(edited));
+  dispatch(scriptsSlice.actions.setData(edited));
 }

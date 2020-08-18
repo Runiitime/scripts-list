@@ -1,29 +1,24 @@
-import { createSelector, OutputSelector } from '@reduxjs/toolkit'
-import { IScriptItem, IDictionary } from './slice'
-import { IState } from "store"
+import { createSelector, OutputSelector } from '@reduxjs/toolkit';
+import { IScriptItem, IDictionary } from './types';
+import { IState } from "store";
 
 interface IScriptsSelector {
   scripts(): IScriptItem[];
-  activeId(): string;
-  item: IScriptItem;
+  scriptList(): IDictionary;
+  selectedId(): string;
+  item(): IScriptItem;
 };
 
-export const getScriptsList = (state: IState): IDictionary => state.scripts.scripts;
-const getActiveItemId = (state: IState): string => state.scripts.activeId;
+const getScriptsList = (state: IState): IDictionary => state.scripts.scripts;
+const getSelectedItemId = (state: IState): string => state.scripts.selectedId;
 
-// 1 вариант
-export const getScripts: OutputSelector<IState, IScriptItem[], (res: IDictionary) => IScriptItem[]> = createSelector(getScriptsList, (scripts: IDictionary): IScriptItem[] => Object.values(scripts));
-export const getActiveId: OutputSelector<IState, string, (res: string) => string> = createSelector(getActiveItemId, (activeId: string): string => activeId);
-export const getItemFactory: (id: string) => OutputSelector<IState, IScriptItem, (res: IDictionary) => IScriptItem> = (id: string) => {
-  return createSelector(
-    getScriptsList,
-    (items: IDictionary): IScriptItem => items[id]
-  )
-}
+const getScripts: OutputSelector<IState, IScriptItem[], (res: IDictionary) => IScriptItem[]> = createSelector(getScriptsList, (scripts: IDictionary): IScriptItem[] => Object.values(scripts));
+const getSelectedId: OutputSelector<IState, string, (res: string) => string> = createSelector(getSelectedItemId, (selectedId: string): string => selectedId);
+const getItem: OutputSelector<IState, IScriptItem, (res1: IDictionary, res2: string) => IScriptItem> = createSelector([getScriptsList, getSelectedId], (scripts: IDictionary, id: string) => scripts[id]);
 
-// 2 вариант
 export const scriptSelectors = (state: IState, id?: string): IScriptsSelector => ({
   scripts: (): IScriptItem[] => getScripts(state),
-  activeId: (): string => getActiveId(state),
-  item: getItemFactory(id)(state)
+  scriptList: (): IDictionary => getScriptsList(state),
+  selectedId: (): string => getSelectedId(state),
+  item: (): IScriptItem => getItem(state)
 });

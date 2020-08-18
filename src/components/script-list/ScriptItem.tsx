@@ -1,7 +1,7 @@
-import React, { KeyboardEvent, useState, useEffect } from "react"
-import { IScriptItem, IChangePayload } from 'store/scripts/slice'
-import classNames from "classnames"
-import Modal from 'components/modal/Modal'
+import React, { KeyboardEvent, useState, useEffect } from "react";
+import { IScriptItem } from 'store/scripts/types';
+import classNames from "classnames";
+import Modal from 'components/modal/Modal';
 
 import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-javascript";
@@ -11,102 +11,121 @@ import "ace-builds/src-noconflict/theme-monokai";
 
 interface IOwnProps {
   script: IScriptItem;
-  activeId: string;
+  selectedId: string;
 }
 
 interface IFuncProps {
-  onSetActive: (activeId: string) => void
-  onChange: (payload: IChangePayload) => void
+  onSetSelectedId: (selectedId: string) => void
+  onChange: (payload: IScriptItem) => void
 }
 
-type IProps = IOwnProps & IFuncProps
+type IProps = IOwnProps & IFuncProps;
 
-const EscCode = 27
-const EnterCode = 13
+enum Codes {
+  Esc = 23,
+  Enter = 13
+};
 
 const ScriptItem: React.FC<IProps> = (props: IProps) => {
-  const [editId, setEditId] = useState<string>(null)
-  const [name, setName] = useState<string>('')
-  const [code, setCode] = useState<string>('')
-  const [language, setLanguage] = useState<string>('')
-  const [date, setDate] = useState<string>('')
-  const [editField, setEditField] = useState<string>('')
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [editId, setEditId] = useState<string>(null);
+  const [name, setName] = useState<string>('');
+  const [code, setCode] = useState<string>('');
+  const [language, setLanguage] = useState<string>('');
+  const [date, setDate] = useState<string>('');
+  const [editField, setEditField] = useState<string>('');
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   useEffect((): void => {
     setDefaultData()
-  }, [])
+  }, []);
+
+  const codesFuncs = {
+    [`${Codes.Esc}`]: () => setDefaultData(),
+    [`${Codes.Enter}`]: () => {
+      const { onChange, script } = props;
+      onChange({id: script.id, name, code, language, date});
+    },
+  }
 
     // Я пробовала указать тип React.MouseEvent<HTMLDivElement> вместо any но тогда я никак не могу получить свойство id 
   const onDoubleClick = (e: any): void => {
-    const { script: { id } } = props
-    setActive(id, e.target.id)
+    const { script: { id } } = props;
+    setActive(id, e.target.id);
   }
 
   const setActive = (id: string, field?: string): void => {
-    const { onSetActive } = props
-    setEditId(id)
-    setEditField(field)
-    onSetActive(id)
+    const { onSetSelectedId } = props;
+    setEditId(id);
+    setEditField(field);
+    onSetSelectedId(id);
   }
 
   const setDefaultData = (): void => {
-    const { script } = props
-    setName(script.name)
-    setCode(script.code)
-    setLanguage(script.language)
-    setDate(script.date)
+    const { script } = props;
+    setName(script.name);
+    setCode(script.code);
+    setLanguage(script.language);
+    setDate(script.date);
   }
 
   const onChangeNameInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const { value } = e.target
+    const { value } = e.target;
     setName(value);
   }
 
   const onChangeCodeInput = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
-    const { value } = e.target
+    const { value } = e.target;
     setCode(value);
   }
 
   const onChangeLanguageInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const { value } = e.target
+    const { value } = e.target;
     setLanguage(value);
   }
 
   const onChangeDateInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const { value } = e.target
+    const { value } = e.target;
     setDate(value);
   }
 
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-    const { onChange, script } = props
+    const { onChange, script } = props;
+    
+    if (![Codes.Enter, Codes.Esc].includes(e.keyCode)) return;
+   
+    setActive(null);
+    const codeFunction = codesFuncs[e.keyCode];
+    codeFunction();
+    // if (e.keyCode === Codes.Enter) {
+      
+    //   onChange({id: script.id, name, code, language, date});
+    // }
 
-    if (e.keyCode === EnterCode) {
-      setActive(null)
-      onChange({id: script.id, name, code, language, date})
-    }
-
-    if (e.keyCode === EscCode) {
-      setActive(null)
-      setDefaultData()
-    }
+    // if (e.keyCode === Codes.Esc) {
+    //   setActive(null);
+    //   setDefaultData();
+    // }
   }
 
   // Я пробовала указать тип React.MouseEvent<HTMLImageElement> вместо any но тогда я никак не могу получить свойство id
   const onEditClick = (e: any): void => {
-    const { script: { id } } = props
-    const elemID: string = e.target.id
-    const ids = elemID.split('_')
+    const { script: { id } } = props;
+    const elemID: string = e.target.id;
+    const ids = elemID.split('_');
     if (ids.length > 0) {
-      setDefaultData()
-      setActive(id, ids[0])
-      setIsOpen(true)
+      setDefaultData();
+      setActive(id, ids[0]);
+      setIsOpen(true);
     }
   }
 
+  const getEditMode = (): boolean => {
+    const { selectedId } = props;
+    return selectedId && editId && selectedId === editId && !isOpen;
+  }
+
   const getRenderField = (inputField: JSX.Element, value: string, fieldName: string, id: string): JSX.Element => {
-    const { activeId } = props
-    const isEditMode = activeId && editId && activeId === editId && !isOpen
+    const isEditMode = getEditMode();
     return (
       <>
         {
@@ -122,10 +141,10 @@ const ScriptItem: React.FC<IProps> = (props: IProps) => {
   }
 
   const renderFields = (): JSX.Element => {
-    const { script, activeId } = props
-    const isEditMode = activeId && editId && activeId === editId && !isOpen
-    const editClassName = isEditMode ? 'table-field__edit' : 'table-field'
-    const codeValue = script.code.length > 100 ? `${script.code.slice(0, 100)}...` : script.code
+    const { script } = props;
+    const isEditMode = getEditMode();
+    const editClassName = isEditMode ? 'table-field__edit' : 'table-field';
+    const codeValue = script.code.length > 100 ? `${script.code.slice(0, 100)}...` : script.code;
     return (
       <>
         <div className={editClassName} id="name">
@@ -145,26 +164,26 @@ const ScriptItem: React.FC<IProps> = (props: IProps) => {
   }
 
   const generateEditClass = (): string => {
-    const { activeId } = props
+    const { selectedId } = props;
     return classNames({
       'script-item': true,
-      'item-not-edit': (!editId && !activeId) || (editId !== activeId)
-    })
+      'item-not-edit': (!editId && !selectedId) || (editId !== selectedId)
+    });
   }
 
   const onCloseModal = (value: boolean): void => {
-    const { script: { id } } = props
+    const { script: { id } } = props;
 
-    setIsOpen(value)
-    setDefaultData()
-    setActive(null)
+    setIsOpen(value);
+    setDefaultData();
+    setActive(null);
   }
 
   const onSaveModal = (): void => {
-    const { script, onChange } = props
-    onChange({id: script.id, name, code, language, date})
-    setActive(null)
-    setIsOpen(false)
+    const { script, onChange } = props;
+    onChange({id: script.id, name, code, language, date});
+    setActive(null);
+    setIsOpen(false);
   }
 
   const onAceChange = (value: string): void => {
@@ -172,7 +191,7 @@ const ScriptItem: React.FC<IProps> = (props: IProps) => {
   }
 
   const renderModalFields = (): JSX.Element => {
-    const inputClassName = 'modal-input'
+    const inputClassName = 'modal-input';
     if (editField === 'name') {
       return <input value={name} onChange={onChangeNameInput} className={inputClassName}/>
     }
@@ -204,7 +223,7 @@ const ScriptItem: React.FC<IProps> = (props: IProps) => {
     )
   }
 
-  const scriptItemClassName = generateEditClass()
+  const scriptItemClassName = generateEditClass();
   return (
     <>
       <div className={scriptItemClassName} onDoubleClick={ onDoubleClick }>
@@ -215,4 +234,4 @@ const ScriptItem: React.FC<IProps> = (props: IProps) => {
   )
 }
 
-export default ScriptItem
+export default ScriptItem;

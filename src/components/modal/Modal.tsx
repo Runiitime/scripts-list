@@ -1,5 +1,5 @@
-import React from "react"
-import classNames from "classnames"
+import React from "react";
+import classNames from "classnames";
 
 interface IOwnProps {
   children: JSX.Element;
@@ -11,22 +11,22 @@ interface IFuncProps {
   onClose?: (isOpen: boolean) => void;
 }
 
-type IProps = IOwnProps & IFuncProps
+type IProps = IOwnProps & IFuncProps;
 
 const Modal: React.FC<IProps> = (props: IProps) => {
 
   const onCloseModal = (): void => {
-    props.onClose(false)
+    props.onClose(false);
   }
 
   const onSaveModal = (): void => {
-    props.onSave()
+    props.onSave();
   }
 
   const overlayClassName = classNames({
     'overlay': true,
     'overlay-hidden': !props.isOpen
-  })
+  });
   
   return (
     <div className={overlayClassName}>
@@ -43,4 +43,4 @@ const Modal: React.FC<IProps> = (props: IProps) => {
   )
 }
 
-export default Modal
+export default Modal;
