@@ -3,7 +3,7 @@ import scripts from "./scripts/slice";
 import { IScripts } from './scripts/types';
 
 export interface IState {
-  scripts: IScripts
+  scripts: IScripts;
 };
 
 export default combineReducers({

@@ -1,10 +1,8 @@
 import scriptsSlice from './slice';
-import { IScriptItem, IDictionary } from './types';
+import { IScriptItem, IDictionary, GetStateFunc } from './types';
 import { IState } from 'store/index';
 import { scriptSelectors } from './selectors';
 import { produce } from 'immer';
-
-type GetStateFunc = () => IState;
 
 export const setScriptsData = (script: IScriptItem): Function => (dispatch: Function, getState: GetStateFunc): void => {
   const state: IState = getState();
