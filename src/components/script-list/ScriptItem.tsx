@@ -22,7 +22,7 @@ interface IFuncProps {
 type IProps = IOwnProps & IFuncProps;
 
 enum Codes {
-  Esc = 23,
+  Esc = 27,
   Enter = 13
 };
 
@@ -89,22 +89,11 @@ const ScriptItem: React.FC<IProps> = (props: IProps) => {
   }
 
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-    const { onChange, script } = props;
-    
     if (![Codes.Enter, Codes.Esc].includes(e.keyCode)) return;
    
     setActive(null);
     const codeFunction = codesFuncs[e.keyCode];
-    codeFunction();
-    // if (e.keyCode === Codes.Enter) {
-      
-    //   onChange({id: script.id, name, code, language, date});
-    // }
-
-    // if (e.keyCode === Codes.Esc) {
-    //   setActive(null);
-    //   setDefaultData();
-    // }
+    if (codeFunction) codeFunction();
   }
 
   // Я пробовала указать тип React.MouseEvent<HTMLImageElement> вместо any но тогда я никак не могу получить свойство id
